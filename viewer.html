@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h2>Remote Viewer</h2>
+
+<input id="session" placeholder="Session ID">
+<button onclick="connect()">Connect</button>
+
+<video id="video" autoplay playsinline style="width:100%;border:1px solid black;"></video>
+
+<script>
+let pc;
+
+function connect() {
+  const id = document.getElementById("session").value;
+
+  const ws = new WebSocket("wss://YOUR_VERCEL_URL");
+
+  ws.onopen = () => {
+    ws.send(JSON.stringify({ type: "register", session: id+"_viewer" }));
+
+    pc = new RTCPeerConnection();
+    pc.ontrack = (event) => video.srcObject = event.streams[0];
+
+    pc.onicecandidate = e => {
+      if (e.candidate) {
+        ws.send(JSON.stringify({
+          type:"signal",
+          from: id+"_viewer",
+          to: id+"_client",
+          signal: e.candidate
+        }));
+      }
+    };
+
+    pc.createOffer().then(o => {
+      pc.setLocalDescription(o);
+      ws.send(JSON.stringify({
+        type:"signal",
+        from: id+"_viewer",
+        to: id+"_client",
+        signal: o
+      }));
+    });
+
+    ws.onmessage = (msg) => {
+      const data = JSON.parse(msg.data);
+      if (data.type === "signal" && data.from === id+"_client") {
+        if (data.signal.sdp) pc.setRemoteDescription(data.signal);
+        else pc.addIceCandidate(data.signal);
+      }
+    };
+  };
+}
+</script>
+</body>
+</html>
