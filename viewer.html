@@ -14,7 +14,7 @@ let pc;
 function connect() {
   const id = document.getElementById("session").value;
 
-  const ws = new WebSocket("wss://https://remote-control-eight.vercel.app/");
+  const ws = new WebSocket("wss://remote-control-eight.vercel.app/");
 
   ws.onopen = () => {
     ws.send(JSON.stringify({ type: "register", session: id+"_viewer" }));
