@@ -1,0 +1,21 @@
+<h2>Richiedi Assistenza Remota</h2>
+
+<button onclick="newSession()">Genera Codice</button>
+
+<p id="session"></p>
+
+<button onclick="openCRD()">Avvia Controllo Remoto</button>
+
+<script>
+async function newSession() {
+  const res = await fetch('/api/new-session');
+  const data = await res.json();
+  document.getElementById('session').innerText = 
+    "Il tuo codice assistenza è: " + data.code;
+  window.localStorage.setItem("session", data.code);
+}
+
+function openCRD() {
+  window.open("https://remotedesktop.google.com/support", "_blank");
+}
+</script>
