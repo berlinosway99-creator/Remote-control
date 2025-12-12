@@ -1,0 +1,25 @@
+<h2>Sessioni Attive</h2>
+<div id="list"></div>
+
+<script>
+async function load() {
+  const res = await fetch('/api/list-sessions');
+  const data = await res.json();
+
+  let html = "";
+  data.forEach(s => {
+    html += `
+      <div style="margin:10px; padding:10px; border:1px solid #999">
+        <b>Codice cliente:</b> ${s.code}<br>
+        <b>Stato:</b> ${s.status}<br>
+        <b>Codice Remoto CRD:</b> ${s.remote_code || "in attesa"}<br>
+      </div>
+    `;
+  });
+
+  document.getElementById("list").innerHTML = html;
+}
+
+setInterval(load, 2500);
+load();
+</script>
